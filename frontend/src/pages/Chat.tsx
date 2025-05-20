@@ -180,6 +180,35 @@ const Chat: React.FC = () => {
 
         <Paper sx={{ height: '60vh', overflow: 'auto', mb: 2, p: 2 }}>
           <List>
+            {chat.type === 'ANONYMOUS' ? (
+              <ListItem>
+                <ListItemText
+                  primary={
+                    <Typography
+                      align="center"
+                      color={chat.participants.length === 1 ? 'warning.main' : 'success.main'}
+                      sx={{ fontWeight: 'bold' }}
+                    >
+                      {chat.participants.length === 1 ? 'Ищем анонимного собеседника...' : 'Собеседник найден!'}
+                    </Typography>
+                  }
+                />
+              </ListItem>
+            ) : (
+              <ListItem>
+                <ListItemText
+                  primary={
+                    <Typography
+                      align="center"
+                      color="primary"
+                      sx={{ fontWeight: 'bold' }}
+                    >
+                      Здесь начинается новый чат
+                    </Typography>
+                  }
+                />
+              </ListItem>
+            )}
             {messages.map((message) => (
               <React.Fragment key={message.id}>
                 <ListItem alignItems="flex-start">
