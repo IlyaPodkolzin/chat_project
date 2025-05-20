@@ -117,7 +117,7 @@ const GroupChatSearch: React.FC = () => {
     <Container maxWidth="lg">
       <Box sx={{ mt: 4, mb: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
-          Group Chats
+            Групповые чаты
         </Typography>
 
         <Card sx={{ mb: 4 }}>
@@ -126,7 +126,7 @@ const GroupChatSearch: React.FC = () => {
               <Grid item xs={12} sm={4}>
                 <TextField
                   fullWidth
-                  label="Chat Name"
+                  label="Название чата"
                   name="name"
                   value={filters.name}
                   onChange={handleFilterChange}
@@ -135,7 +135,7 @@ const GroupChatSearch: React.FC = () => {
               <Grid item xs={12} sm={4}>
                 <TextField
                   fullWidth
-                  label="Min Participants"
+                  label="Минимальное количество участников"
                   name="min_participants"
                   type="number"
                   value={filters.min_participants}
@@ -144,7 +144,7 @@ const GroupChatSearch: React.FC = () => {
               </Grid>
               <Grid item xs={12} sm={4}>
                 <FormControl fullWidth>
-                  <InputLabel>Interests</InputLabel>
+                  <InputLabel>Интересы</InputLabel>
                   <Select
                     multiple
                     value={filters.interests}
@@ -174,7 +174,7 @@ const GroupChatSearch: React.FC = () => {
               onClick={handleSearch}
               fullWidth
             >
-              Search
+              Найти
             </Button>
           </CardActions>
         </Card>
@@ -194,7 +194,7 @@ const GroupChatSearch: React.FC = () => {
                     {chat.name}
                   </Typography>
                   <Typography color="text.secondary" gutterBottom>
-                    {chat.participants.length} participants
+                    {chat.participants.length} участников
                   </Typography>
                   <Box sx={{ mt: 1 }}>
                     {chat.interests.map((chatInterest) => (

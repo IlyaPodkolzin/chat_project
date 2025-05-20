@@ -84,20 +84,20 @@ const Profile: React.FC = () => {
     <Container maxWidth="md">
       <Box sx={{ mt: 4, mb: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
-          Profile
+          Профиль
         </Typography>
 
         <Paper sx={{ p: 4, mb: 4 }}>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
             <Box sx={{ flex: '1 1 300px', minWidth: 0 }}>
               <Typography variant="h6" gutterBottom>
-                Personal Information
+                Личные данные
               </Typography>
               {isEditing ? (
                 <>
                   <TextField
                     fullWidth
-                    label="Username"
+                    label="Имя пользователя"
                     name="username"
                     value={formData.username}
                     onChange={handleChange}
@@ -105,7 +105,7 @@ const Profile: React.FC = () => {
                   />
                   <TextField
                     fullWidth
-                    label="Age"
+                    label="Возраст"
                     name="age"
                     type="number"
                     value={formData.age}
@@ -114,7 +114,7 @@ const Profile: React.FC = () => {
                   />
                   <TextField
                     fullWidth
-                    label="Gender"
+                    label="Пол"
                     name="gender"
                     value={formData.gender}
                     onChange={handleChange}
@@ -127,26 +127,26 @@ const Profile: React.FC = () => {
                       onClick={handleSave}
                       sx={{ mr: 1 }}
                     >
-                      Save
+                      Сохранить
                     </Button>
                     <Button
                       variant="outlined"
                       onClick={() => setIsEditing(false)}
                     >
-                      Cancel
+                      Отменить
                     </Button>
                   </Box>
                 </>
               ) : (
                 <>
                   <Typography variant="body1" gutterBottom>
-                    Username: {user.username}
+                    Имя пользователя: {user.username}
                   </Typography>
                   <Typography variant="body1" gutterBottom>
-                    Age: {user.age}
+                    Возраст: {user.age}
                   </Typography>
                   <Typography variant="body1" gutterBottom>
-                    Gender: {user.gender}
+                    Пол: {user.gender}
                   </Typography>
                   <Typography variant="body1" gutterBottom>
                     Email: {user.email}
@@ -156,7 +156,7 @@ const Profile: React.FC = () => {
                     onClick={() => setIsEditing(true)}
                     sx={{ mt: 2 }}
                   >
-                    Edit Profile
+                    Редактировать профиль
                   </Button>
                 </>
               )}
@@ -165,7 +165,7 @@ const Profile: React.FC = () => {
         </Paper>
 
         <Typography variant="h5" gutterBottom>
-          My Chats
+          Мои чаты
         </Typography>
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
           {chats.map((chat) => (
@@ -176,10 +176,10 @@ const Profile: React.FC = () => {
                     {chat.type === ChatType.GROUP ? chat.name : 'Anonymous Chat'}
                   </Typography>
                   <Typography color="text.secondary" gutterBottom>
-                    Type: {chat.type}
+                    Тип: {chat.type}
                   </Typography>
                   <Typography color="text.secondary">
-                    Participants: {chat.participants.length}
+                    Участники: {chat.participants.length}
                   </Typography>
                 </CardContent>
                 <CardActions>
@@ -188,7 +188,7 @@ const Profile: React.FC = () => {
                     color="primary"
                     onClick={() => navigate(`/chat/${chat.id}`)}
                   >
-                    Open Chat
+                    Открыть чат
                   </Button>
                 </CardActions>
               </Card>

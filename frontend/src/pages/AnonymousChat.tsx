@@ -145,158 +145,85 @@ const AnonymousChat: React.FC = () => {
     <Container maxWidth="md">
       <Box sx={{ mt: 4, mb: 4 }}>
         <Typography variant="h4" component="h1" align="center" gutterBottom>
-          Anonymous Chat
+          Анонимный чат
         </Typography>
 
-        {!chat ? (
-          <Paper sx={{ p: 4, mt: 4 }}>
-            <Typography variant="h6" gutterBottom>
-              Фильтры анонимных чатов
-            </Typography>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <FormControl fullWidth>
-                  <InputLabel>Интересы</InputLabel>
-                  <Select
-                    multiple
-                    value={selectedInterests}
-                    onChange={handleInterestChange}
-                    renderValue={(selected) => (
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                        {selected.map((value) => (
-                          <Typography key={value} component="span">
-                            {value}
-                          </Typography>
-                        ))}
-                      </Box>
-                    )}
-                  >
-                    {interests.map((interest) => (
-                      <MenuItem key={interest.id} value={interest.interest}>
-                        {interest.interest}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <FormControl fullWidth>
-                  <InputLabel>Пол собеседника</InputLabel>
-                  <Select
-                    value={gender}
-                    onChange={handleGenderChange}
-                    label="Пол собеседника"
-                  >
-                    <MenuItem value="">Любой</MenuItem>
-                    <MenuItem value="male">Мужской</MenuItem>
-                    <MenuItem value="female">Женский</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  fullWidth
-                  label="Минимальный возраст"
-                  type="number"
-                  value={minAge}
-                  onChange={(e) => setMinAge(e.target.value)}
-                  InputProps={{ inputProps: { min: 18, max: 100 } }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  fullWidth
-                  label="Максимальный возраст"
-                  type="number"
-                  value={maxAge}
-                  onChange={(e) => setMaxAge(e.target.value)}
-                  InputProps={{ inputProps: { min: 18, max: 100 } }}
-                />
-              </Grid>
-            </Grid>
-
-            <Button
-              fullWidth
-              variant="contained"
-              color="primary"
-              onClick={handleFindChat}
-              sx={{ mt: 2 }}
-            >
-              Найти чат
-            </Button>
-          </Paper>
-        ) : (
-          <>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="h6">
-                Анонимный чат
-              </Typography>
-              <IconButton onClick={handleLeaveChat} color="primary">
-                <ExitIcon />
-              </IconButton>
-            </Box>
-
-            <Paper sx={{ height: '60vh', overflow: 'auto', mb: 2, p: 2 }}>
-              <List>
-                {messages.map((message) => (
-                  <React.Fragment key={message.id}>
-                    <ListItem alignItems="flex-start">
-                      <ListItemAvatar>
-                        <Avatar>?</Avatar>
-                      </ListItemAvatar>
-                      <ListItemText
-                        primary={
-                          <Typography
-                            component="span"
-                            sx={{
-                              color: message.sender.id === currentUser.id ? 'success.main' : 'info.main',
-                              fontWeight: 'bold'
-                            }}
-                          >
-                            Аноним
-                          </Typography>
-                        }
-                        secondary={
-                          <>
-                            <Typography component="span" variant="body2" color="text.primary">
-                              {message.content}
-                            </Typography>
-                            <Typography variant="caption" display="block" color="text.secondary">
-                              {new Date(message.created_at).toLocaleString()}
-                            </Typography>
-                          </>
-                        }
-                      />
-                    </ListItem>
-                    <Divider variant="inset" component="li" />
-                  </React.Fragment>
-                ))}
-                <div ref={messagesEndRef} />
-              </List>
-            </Paper>
-
-            <Paper component="form" onSubmit={handleSendMessage} sx={{ p: 2 }}>
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <TextField
-                  fullWidth
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder="Type a message..."
-                  variant="outlined"
-                  size="small"
-                />
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  endIcon={<SendIcon />}
+        <Paper sx={{ p: 4, mt: 4 }}>
+          <Typography variant="h6" gutterBottom>
+            Фильтры анонимных чатов
+          </Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <FormControl fullWidth>
+                <InputLabel>Интересы</InputLabel>
+                <Select
+                  multiple
+                  value={selectedInterests}
+                  onChange={handleInterestChange}
+                  renderValue={(selected) => (
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      {selected.map((value) => (
+                        <Typography key={value} component="span">
+                          {value}
+                        </Typography>
+                      ))}
+                    </Box>
+                  )}
                 >
-                  Send
-                </Button>
-              </Box>
-            </Paper>
-          </>
-        )}
+                  {interests.map((interest) => (
+                    <MenuItem key={interest.id} value={interest.interest}>
+                      {interest.interest}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <FormControl fullWidth>
+                <InputLabel>Пол собеседника</InputLabel>
+                <Select
+                  value={gender}
+                  onChange={handleGenderChange}
+                  label="Пол собеседника"
+                >
+                  <MenuItem value="">Любой</MenuItem>
+                  <MenuItem value="male">Мужской</MenuItem>
+                  <MenuItem value="female">Женский</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                fullWidth
+                label="Минимальный возраст"
+                type="number"
+                value={minAge}
+                onChange={(e) => setMinAge(e.target.value)}
+                InputProps={{ inputProps: { min: 18, max: 100 } }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                fullWidth
+                label="Максимальный возраст"
+                type="number"
+                value={maxAge}
+                onChange={(e) => setMaxAge(e.target.value)}
+                InputProps={{ inputProps: { min: 18, max: 100 } }}
+              />
+            </Grid>
+          </Grid>
+
+          <Button
+            fullWidth
+            variant="contained"
+            color="primary"
+            onClick={handleFindChat}
+            sx={{ mt: 2 }}
+          >
+            Найти чат
+          </Button>
+        </Paper>
 
         {error && (
           <Typography color="error" sx={{ mt: 2 }}>
