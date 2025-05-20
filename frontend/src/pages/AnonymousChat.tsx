@@ -19,6 +19,7 @@ import {
   Select,
   MenuItem,
   SelectChangeEvent,
+  Grid,
 } from '@mui/material';
 import { Send as SendIcon, ExitToApp as ExitIcon } from '@mui/icons-material';
 import { chatService, interestService } from '../services/api';
@@ -34,6 +35,11 @@ const AnonymousChat: React.FC = () => {
   const [error, setError] = useState('');
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+
+  // Фильтры
+  const [gender, setGender] = useState<string>('');
+  const [minAge, setMinAge] = useState<string>('');
+  const [maxAge, setMaxAge] = useState<string>('');
 
   useEffect(() => {
     loadInterests();
@@ -53,14 +59,31 @@ const AnonymousChat: React.FC = () => {
     setSelectedInterests(value);
   };
 
-  const handleFindChat = async () => {
-    if (selectedInterests.length === 0) {
-      setError('Please select at least one interest');
-      return;
-    }
+  const handleGenderChange = (event: SelectChangeEvent) => {
+    setGender(event.target.value);
+  };
 
+  const handleFindChat = async () => {
     try {
-      const data = await chatService.findAnonymousChat({ interests: selectedInterests });
+      const filters: any = {};
+
+      if (selectedInterests.length > 0) {
+        filters.interests = selectedInterests;
+      }
+
+      if (gender) {
+        filters.gender = gender;
+      }
+
+      if (minAge) {
+        filters.min_age = parseInt(minAge);
+      }
+
+      if (maxAge) {
+        filters.max_age = parseInt(maxAge);
+      }
+
+      const data = await chatService.findAnonymousChat(filters);
       setChat(data);
       loadMessages(data.id);
     } catch (error) {
@@ -128,29 +151,70 @@ const AnonymousChat: React.FC = () => {
 
         {!chat ? (
           <Paper sx={{ p: 4, mt: 4 }}>
-            <FormControl fullWidth margin="normal">
-              <InputLabel>Interests</InputLabel>
-              <Select
-                multiple
-                value={selectedInterests}
-                onChange={handleInterestChange}
-                renderValue={(selected) => (
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                    {selected.map((value) => (
-                      <Typography key={value} component="span">
-                        {value}
-                      </Typography>
+            <Typography variant="h6" gutterBottom>
+              Фильтры анонимных чатов
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <FormControl fullWidth>
+                  <InputLabel>Интересы</InputLabel>
+                  <Select
+                    multiple
+                    value={selectedInterests}
+                    onChange={handleInterestChange}
+                    renderValue={(selected) => (
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {selected.map((value) => (
+                          <Typography key={value} component="span">
+                            {value}
+                          </Typography>
+                        ))}
+                      </Box>
+                    )}
+                  >
+                    {interests.map((interest) => (
+                      <MenuItem key={interest.id} value={interest.interest}>
+                        {interest.interest}
+                      </MenuItem>
                     ))}
-                  </Box>
-                )}
-              >
-                {interests.map((interest) => (
-                  <MenuItem key={interest.id} value={interest.interest}>
-                    {interest.interest}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <FormControl fullWidth>
+                  <InputLabel>Пол собеседника</InputLabel>
+                  <Select
+                    value={gender}
+                    onChange={handleGenderChange}
+                    label="Пол собеседника"
+                  >
+                    <MenuItem value="">Любой</MenuItem>
+                    <MenuItem value="M">Мужской</MenuItem>
+                    <MenuItem value="F">Женский</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  fullWidth
+                  label="Минимальный возраст"
+                  type="number"
+                  value={minAge}
+                  onChange={(e) => setMinAge(e.target.value)}
+                  InputProps={{ inputProps: { min: 18, max: 100 } }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  fullWidth
+                  label="Максимальный возраст"
+                  type="number"
+                  value={maxAge}
+                  onChange={(e) => setMaxAge(e.target.value)}
+                  InputProps={{ inputProps: { min: 18, max: 100 } }}
+                />
+              </Grid>
+            </Grid>
 
             <Button
               fullWidth
@@ -159,14 +223,14 @@ const AnonymousChat: React.FC = () => {
               onClick={handleFindChat}
               sx={{ mt: 2 }}
             >
-              Find Chat
+              Найти чат
             </Button>
           </Paper>
         ) : (
           <>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
               <Typography variant="h6">
-                Anonymous Chat
+                Анонимный чат
               </Typography>
               <IconButton onClick={handleLeaveChat} color="primary">
                 <ExitIcon />
