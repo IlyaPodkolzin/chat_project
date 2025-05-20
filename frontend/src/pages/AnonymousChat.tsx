@@ -84,8 +84,7 @@ const AnonymousChat: React.FC = () => {
       }
 
       const data = await chatService.findAnonymousChat(filters);
-      setChat(data);
-      loadMessages(data.id);
+      navigate(`/chat/${data.id}`);
     } catch (error) {
       setError('Failed to find chat');
     }
@@ -189,8 +188,8 @@ const AnonymousChat: React.FC = () => {
                     label="Пол собеседника"
                   >
                     <MenuItem value="">Любой</MenuItem>
-                    <MenuItem value="M">Мужской</MenuItem>
-                    <MenuItem value="F">Женский</MenuItem>
+                    <MenuItem value="male">Мужской</MenuItem>
+                    <MenuItem value="female">Женский</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
