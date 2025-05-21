@@ -1,75 +1,58 @@
-# Chat Application
+# Веб-приложение "Чат"
 
-A real-time chat application built with Django, FastAPI, TypeScript, and PostgreSQL.
+Приложение для общения в режиме реального времени, созданное на основе Django, TypeScript и PostgreSQL.
+Выполнено в рамках курсовой работы по дисциплине "Бекенд-разработка".
 
-## Features
+## Функции
 
-- User authentication and authorization
-- Group chats with interests
-- Anonymous chat matching
-- Real-time messaging
-- User profiles and chat management
+- Аутентификация и авторизация пользователей
+- Групповые чаты по интересам
+- Анонимное общение
+- Обмен сообщениями в режиме реального времени
+- Профили пользователей и управление чатом
 
-## Tech Stack
+## Технический стек
 
-- Backend:
-  - Django (main web framework)
-  - FastAPI (real-time features)
-  - PostgreSQL (database)
-- Frontend:
+- Серверная часть:
+  - Django (основной веб-фреймворк)
+  - PostgreSQL (база данных)
+- Интерфейс:
   - TypeScript
   - React
   - Material-UI
 
-## Setup Instructions
+## Инструкции по настройке
 
-1. Create and activate a virtual environment:
-```bash
-python -m venv venv
-venv\Scripts\activate
+1. Создайте и активируйте виртуальную среду:
+``bash
+python -m вев вев
+в env\Scripts\activate
 ```
 
-2. Install Python dependencies:
-```bash
+2. Установите зависимости Python:
+``bash
 pip install -r requirements.txt
 ```
 
-3. Install frontend dependencies:
-```bash
+3. Установите зависимости внешнего интерфейса:
+``bash
 cd frontend
 npm install
 ```
 
-4. Set up PostgreSQL database and update settings in `.env` file
+4. Настройте базу данных PostgreSQL и обновите настройки в файле `.env`
 
-5. Run migrations:
-```bash
-python manage.py migrate
+5. Запустите миграцию:
+``bash
+python manage.py мигрировать
 ```
 
-6. Start the development servers:
-```bash
-# Terminal 1 - Django server
-python manage.py runserver
+6. Запустите серверы разработки:
+``bash
+# # Терминал 1 - Джанго сервер
+python manage.py сервер запуска
 
-# Terminal 2 - FastAPI server
-uvicorn backend.fastapi_app:app --reload
-
-# Terminal 3 - Frontend development server
-cd frontend
+# # Терминал 2 - Сервер разработки
+интерфейса cd frontend
 npm run dev
-```
-
-## Project Structure
-
-```
-chat_project/
-├── backend/                 # Django backend
-│   ├── chat/               # Chat app
-│   ├── users/              # Users app
-│   └── fastapi_app.py      # FastAPI application
-├── frontend/               # TypeScript frontend
-│   ├── src/
-│   └── package.json
-└── requirements.txt        # Python dependencies
-``` 
+``
