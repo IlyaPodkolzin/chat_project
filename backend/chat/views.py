@@ -28,7 +28,6 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'])
     def register(self, request):
-        logger.info(f"Registration request data: {request.data}")
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             try:
@@ -41,25 +40,20 @@ class UserViewSet(viewsets.ModelViewSet):
                     'refresh': str(refresh)
                 }, status=status.HTTP_201_CREATED)
             except Exception as e:
-                logger.error(f"Error during user creation: {str(e)}")
                 return Response(
                     {'error': str(e)},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-        logger.error(f"Validation errors: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['get'])
     def me(self, request):
-        logger.info(f"Me request from user: {request.user.username}")
         if not request.user.is_authenticated:
-            logger.warning("Unauthenticated user tried to access /me/ endpoint")
             return Response(
                 {'error': 'Authentication required'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
         serializer = self.get_serializer(request.user)
-        logger.info(f"Returning user data: {serializer.data}")
         return Response(serializer.data)
 
 class ChatViewSet(viewsets.ModelViewSet):
