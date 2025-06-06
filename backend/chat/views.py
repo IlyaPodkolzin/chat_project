@@ -304,11 +304,15 @@ class ChatViewSet(viewsets.ModelViewSet):
                 ChatUser.objects.filter(user=request.user).delete()
                 Message.objects.filter(sender=request.user).delete()
 
-                # Blacklist all tokens for this user
-                tokens = OutstandingToken.objects.filter(user_id=user_id)
-                for token in tokens:
-                    BlacklistedToken.objects.get_or_create(token=token)
-                logger.info(f"Blacklisted all tokens for anonymous user {username}")
+                # Blacklist the current refresh token
+                try:
+                    refresh_token = request.data.get('refresh_token')
+                    if refresh_token:
+                        token = RefreshToken(refresh_token)
+                        token.blacklist()
+                        logger.info(f"Blacklisted token for anonymous user {username}")
+                except Exception as e:
+                    logger.warning(f"Failed to blacklist token for user {username}: {str(e)}")
 
                 # Delete the user
                 request.user.delete()
