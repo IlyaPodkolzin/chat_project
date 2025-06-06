@@ -92,7 +92,7 @@ class ChatSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Chat
-        fields = ['id', 'type', 'name', 'created_at', 'participants', 'interests', 'messages', 'interest_names']
+        fields = ['id', 'type', 'name', 'created_at', 'participants', 'interests', 'messages', 'interest_names', 'preferences']
         read_only_fields = ['created_at']
 
     def get_messages(self, obj):

@@ -42,6 +42,7 @@ class Chat(models.Model):
         through='ChatInterest',
         related_name='chats'
     )
+    preferences = models.JSONField(null=True, blank=True, help_text="Preferences for anonymous chat matching")
 
     def __str__(self):
         return f"{self.name or 'Unnamed'} ({self.type})"

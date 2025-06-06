@@ -138,67 +138,84 @@ class ChatViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'])
     def find_anonymous_chat(self, request):
-        """Find or create an anonymous chat based on user preferences"""
-        # If user is not authenticated, create an anonymous user
-        if not request.user.is_authenticated:
-            user_response = UserViewSet.create_anonymous(self, request)
-            if user_response.status_code != status.HTTP_201_CREATED:
-                return user_response
-            request.user = User.objects.get(id=user_response.data['user']['id'])
+        """Find or create an anonymous chat based on preferences"""
+        try:
+            # Get user's preferences from request
+            min_age = request.data.get('min_age')
+            max_age = request.data.get('max_age')
+            preferred_gender = request.data.get('preferred_gender')
+            
+            # Store preferences for future matching
+            preferences = {
+                'min_age': min_age,
+                'max_age': max_age,
+                'preferred_gender': preferred_gender
+            }
 
-        interests = request.data.get('interests', [])
-        gender = request.data.get('gender')
-        min_age = request.data.get('min_age')
-        max_age = request.data.get('max_age')
-        
-        logger.info(f"Finding anonymous chat with filters: interests={interests}, gender={gender}, min_age={min_age}, max_age={max_age}")
+            # Build query for finding matching chats
+            chat_query = Chat.objects.filter(
+                type=ChatType.ANONYMOUS
+            ).annotate(
+                participant_count=Count('participants')
+            ).filter(
+                participant_count=1
+            )
 
-        # Базовый запрос для поиска чата
-        chat_query = Chat.objects.filter(
-            type=ChatType.ANONYMOUS
-        ).annotate(
-            participant_count=Count('participants')
-        ).filter(participant_count=1)
+            # Filter by existing participant's age and gender
+            if min_age:
+                chat_query = chat_query.filter(participants__age__gte=min_age)
+            if max_age:
+                chat_query = chat_query.filter(participants__age__lte=max_age)
+            if preferred_gender:
+                chat_query = chat_query.filter(participants__gender=preferred_gender)
 
-        # Добавляем фильтр по интересам, если они указаны
-        if interests:
-            chat_query = chat_query.filter(interests__interest__in=interests)
+            # Filter by preferences stored in the chat
+            if request.user.age:
+                chat_query = chat_query.filter(
+                    Q(preferences__isnull=True) |  # Include chats without preferences
+                    Q(preferences__min_age__isnull=True) |  # Include chats without min_age preference
+                    Q(preferences__min_age__lte=request.user.age)  # Check min_age preference
+                ).filter(
+                    Q(preferences__isnull=True) |
+                    Q(preferences__max_age__isnull=True) |
+                    Q(preferences__max_age__gte=request.user.age)
+                )
+            
+            if request.user.gender:
+                chat_query = chat_query.filter(
+                    Q(preferences__isnull=True) |
+                    Q(preferences__preferred_gender__isnull=True) |
+                    Q(preferences__preferred_gender=request.user.gender)
+                )
 
-        # Добавляем фильтры по полу и возрасту, если они указаны
-        if gender:
-            chat_query = chat_query.filter(participants__gender=gender)
-        
-        if min_age:
-            chat_query = chat_query.filter(participants__age__gte=min_age)
-        
-        if max_age:
-            chat_query = chat_query.filter(participants__age__lte=max_age)
+            # Exclude chats where the current user is already a participant
+            chat_query = chat_query.exclude(participants=request.user)
 
-        # Исключаем чаты, где текущий пользователь уже является участником
-        chat_query = chat_query.exclude(participants=request.user)
+            # Get the first matching chat
+            existing_chat = chat_query.first()
 
-        existing_chat = chat_query.first()
+            if existing_chat:
+                # Add user to the chat
+                ChatUser.objects.create(user=request.user, chat=existing_chat)
+                serializer = self.get_serializer(existing_chat)
+                return Response(serializer.data)
 
-        if existing_chat:
-            logger.info(f"Found existing chat {existing_chat.id} with matching filters")
-            # Join existing chat
-            ChatUser.objects.create(user=request.user, chat=existing_chat)
-            serializer = self.get_serializer(existing_chat)
+            # If no matching chat found, create a new one
+            chat = Chat.objects.create(
+                type=ChatType.ANONYMOUS,
+                preferences=preferences
+            )
+            ChatUser.objects.create(user=request.user, chat=chat)
+            
+            serializer = self.get_serializer(chat)
             return Response(serializer.data)
 
-        # Create new anonymous chat
-        logger.info("No matching chat found, creating new one")
-        new_chat = Chat.objects.create(type=ChatType.ANONYMOUS)
-        ChatUser.objects.create(user=request.user, chat=new_chat)
-        
-        # Add interests to the new chat if they were specified
-        if interests:
-            for interest_name in interests:
-                interest, _ = Interest.objects.get_or_create(interest=interest_name)
-                ChatInterest.objects.get_or_create(chat=new_chat, interest=interest)
-
-        serializer = self.get_serializer(new_chat)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            logger.error(f"Error in find_anonymous_chat: {str(e)}")
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
     @action(detail=True, methods=['post'])
     def join_chat(self, request, pk=None):
