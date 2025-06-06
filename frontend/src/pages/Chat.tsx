@@ -141,10 +141,29 @@ const Chat: React.FC = () => {
 
   const handleLeaveChat = async () => {
     try {
-      await chatService.leaveChat(parseInt(id!));
-      navigate('/profile');
-    } catch (error) {
-      setError('Failed to leave chat');
+      const response = await chatService.leaveChat(parseInt(id!));
+      
+      // Проверяем, был ли удален пользователь
+      if (response.data?.user_deleted) {
+        // Очищаем локальное хранилище
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        // Перенаправляем на страницу анонимного чата
+        navigate('/anonymous-chat');
+      } else {
+        // Обычный выход из чата
+        navigate('/profile');
+      }
+    } catch (error: any) {
+      console.error('Error leaving chat:', error);
+      if (error.response?.status === 401) {
+        // Если токен истек или пользователь удален
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        navigate('/anonymous-chat');
+      } else {
+        setError('Failed to leave chat');
+      }
     }
   };
 

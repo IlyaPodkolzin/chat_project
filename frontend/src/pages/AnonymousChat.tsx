@@ -179,14 +179,37 @@ const AnonymousChat: React.FC = () => {
     if (!chat) return;
 
     try {
-      await chatService.leaveChat(chat.id);
-      setChat(null);
-      setMessages([]);
-      setSelectedInterests([]);
-      navigate('/anonymous-chat');
+      const response = await chatService.leaveChat(chat.id);
+      
+      // Проверяем, был ли удален пользователь
+      if (response.data?.user_deleted) {
+        // Очищаем локальное хранилище
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        // Сбрасываем состояние
+        setChat(null);
+        setMessages([]);
+        setSelectedInterests([]);
+        // Показываем форму для нового анонимного пользователя
+        setShowAnonymousForm(true);
+      } else {
+        // Обычный выход из чата
+        setChat(null);
+        setMessages([]);
+        setSelectedInterests([]);
+        navigate('/anonymous-chat');
+      }
     } catch (error: any) {
       console.error('Error leaving chat:', error);
-      if (error.response?.status === 404) {
+      if (error.response?.status === 401) {
+        // Если токен истек или пользователь удален
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setChat(null);
+        setMessages([]);
+        setSelectedInterests([]);
+        setShowAnonymousForm(true);
+      } else if (error.response?.status === 404) {
         setError('Чат не найден');
       } else if (error.response?.status === 400) {
         setError('Вы не являетесь участником этого чата');

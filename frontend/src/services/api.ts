@@ -129,8 +129,9 @@ export const chatService = {
     return response.data;
   },
 
-  leaveChat: async (chatId: number): Promise<void> => {
-    await api.post(`/api/chats/${chatId}/leave_chat/`);
+  leaveChat: async (chatId: number): Promise<any> => {
+    const response = await api.post(`/api/chats/${chatId}/leave_chat/`);
+    return response;
   },
 
   getChat: async (chatId: number): Promise<Chat> => {

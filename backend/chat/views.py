@@ -317,6 +317,12 @@ class ChatViewSet(viewsets.ModelViewSet):
                 # Delete the user
                 request.user.delete()
                 logger.info(f"Successfully deleted anonymous user {username} (ID: {user_id})")
+                
+                # Возвращаем специальный статус, указывающий на удаление пользователя
+                return Response({
+                    'message': 'User deleted successfully',
+                    'user_deleted': True
+                }, status=status.HTTP_200_OK)
             except Exception as e:
                 logger.error(f"Error deleting anonymous user {request.user.username}: {str(e)}")
                 return Response(
