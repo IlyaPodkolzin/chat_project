@@ -21,6 +21,7 @@ const App: React.FC = () => {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/anonymous-chat" element={<AnonymousChat />} />
             <Route
               path="/*"
               element={
@@ -38,7 +39,7 @@ const ProtectedRoutes: React.FC = () => {
   const isAuthenticated = !!localStorage.getItem('token');
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/anonymous-chat" replace />;
   }
 
   return (
@@ -46,7 +47,6 @@ const ProtectedRoutes: React.FC = () => {
       <Route path="/profile" element={<Profile />} />
       <Route path="/group-chats" element={<GroupChatSearch />} />
       <Route path="/chat/:id" element={<Chat />} />
-      <Route path="/anonymous-chat" element={<AnonymousChat />} />
       <Route path="/" element={<Navigate to="/profile" replace />} />
     </Routes>
   );

@@ -11,6 +11,13 @@ import {
   RegisterData,
 } from '../types';
 
+// Добавляем тип для данных анонимного пользователя
+export interface AnonymousUserData {
+  username: string;
+  gender: string;
+  age: number;
+}
+
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 const api = axios.create({
@@ -21,11 +28,34 @@ const api = axios.create({
   withCredentials: true,
 });
 
-api.interceptors.request.use((config) => {
+// Функция для получения CSRF токена
+const getCsrfToken = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/api/csrf/`, {
+      withCredentials: true,
+    });
+    return response.data.csrfToken;
+  } catch (error) {
+    console.error('Error getting CSRF token:', error);
+    return null;
+  }
+};
+
+// Добавляем CSRF токен к запросам
+api.interceptors.request.use(async (config) => {
   const token = localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
+  // Добавляем CSRF токен для POST, PUT, DELETE запросов
+  if (['post', 'put', 'delete'].includes(config.method?.toLowerCase() || '')) {
+    const csrfToken = await getCsrfToken();
+    if (csrfToken) {
+      config.headers['X-CSRFToken'] = csrfToken;
+    }
+  }
+
   return config;
 });
 
@@ -41,6 +71,15 @@ export const authService = {
 
   register: async (data: RegisterData): Promise<{ token: string; user: User }> => {
     const response = await api.post('/api/users/register/', data);
+    const { access, refresh } = response.data;
+    localStorage.setItem('token', access);
+    localStorage.setItem('refreshToken', refresh);
+    const userResponse = await api.get('/api/users/me/');
+    return { token: access, user: userResponse.data };
+  },
+
+  registerAnonymous: async (data: AnonymousUserData): Promise<{ token: string; user: User }> => {
+    const response = await api.post('/api/users/anonymous/', data);
     const { access, refresh } = response.data;
     localStorage.setItem('token', access);
     localStorage.setItem('refreshToken', refresh);

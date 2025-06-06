@@ -10,6 +10,7 @@ from .serializers import (
 )
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
 import logging
 
 logger = logging.getLogger(__name__)
@@ -22,7 +23,7 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_permissions(self):
-        if self.action in ['create', 'register']:
+        if self.action in ['create', 'register', 'create_anonymous']:
             return [AllowAny()]
         return super().get_permissions()
 
@@ -56,6 +57,33 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
 
+    @action(detail=False, methods=['post'])
+    def anonymous(self, request, *args, **kwargs):
+        """Create an anonymous user with provided gender, age and nickname"""
+        serializer = self.get_serializer(data={
+            'username': f"anon_{request.data.get('username', 'user')}",
+            'password': User.objects.make_random_password(),
+            'gender': request.data.get('gender'),
+            'age': request.data.get('age'),
+            'role': "ANONYMOUS"
+        })
+        
+        if serializer.is_valid():
+            try:
+                user = serializer.save()
+                refresh = RefreshToken.for_user(user)
+                return Response({
+                    'user': serializer.data,
+                    'access': str(refresh.access_token),
+                    'refresh': str(refresh)
+                }, status=status.HTTP_201_CREATED)
+            except Exception as e:
+                return Response(
+                    {'error': str(e)},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 class ChatViewSet(viewsets.ModelViewSet):
     queryset = Chat.objects.all()
     serializer_class = ChatSerializer
@@ -78,6 +106,11 @@ class ChatViewSet(viewsets.ModelViewSet):
             
         # For other actions, return only chats where user is a participant
         return Chat.objects.filter(participants=user)
+
+    def get_permissions(self):
+        if self.action in ['find_anonymous_chat']:
+            return [AllowAny()]
+        return super().get_permissions()
 
     @action(detail=False, methods=['get'])
     def group_chats(self, request):
@@ -106,6 +139,13 @@ class ChatViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post'])
     def find_anonymous_chat(self, request):
         """Find or create an anonymous chat based on user preferences"""
+        # If user is not authenticated, create an anonymous user
+        if not request.user.is_authenticated:
+            user_response = UserViewSet.create_anonymous(self, request)
+            if user_response.status_code != status.HTTP_201_CREATED:
+                return user_response
+            request.user = User.objects.get(id=user_response.data['user']['id'])
+
         interests = request.data.get('interests', [])
         gender = request.data.get('gender')
         min_age = request.data.get('min_age')
@@ -201,7 +241,7 @@ class ChatViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def leave_chat(self, request, pk=None):
-        """Leave a chat"""
+        """Leave a chat and delete anonymous user if applicable"""
         try:
             chat = Chat.objects.get(pk=pk)
             logger.info(f"User {request.user.username} attempting to leave chat {chat.id}")
@@ -246,7 +286,6 @@ class ChatViewSet(viewsets.ModelViewSet):
                 # Затем удаляем сам чат
                 chat.delete()
                 logger.info(f"Deleted anonymous chat {chat.id} as it has no participants")
-                return Response(status=status.HTTP_204_NO_CONTENT)
             except Exception as e:
                 logger.error(f"Error deleting chat: {str(e)}")
                 return Response(
@@ -254,7 +293,33 @@ class ChatViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
 
-        # Для групповых чатов просто возвращаем успех
+        # Если пользователь анонимный, удаляем его после выхода из чата
+        if request.user.role == 'ANONYMOUS':
+            try:
+                # Сохраняем ID пользователя перед удалением для логирования
+                user_id = request.user.id
+                username = request.user.username
+
+                # Удаляем все связанные записи пользователя
+                ChatUser.objects.filter(user=request.user).delete()
+                Message.objects.filter(sender=request.user).delete()
+
+                # Blacklist all tokens for this user
+                tokens = OutstandingToken.objects.filter(user_id=user_id)
+                for token in tokens:
+                    BlacklistedToken.objects.get_or_create(token=token)
+                logger.info(f"Blacklisted all tokens for anonymous user {username}")
+
+                # Delete the user
+                request.user.delete()
+                logger.info(f"Successfully deleted anonymous user {username} (ID: {user_id})")
+            except Exception as e:
+                logger.error(f"Error deleting anonymous user {request.user.username}: {str(e)}")
+                return Response(
+                    {'error': f'Failed to delete anonymous user: {str(e)}'},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def create(self, request, *args, **kwargs):

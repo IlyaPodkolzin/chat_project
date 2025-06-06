@@ -23,6 +23,7 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+from .views import GetCsrfToken
 
 router = DefaultRouter()
 router.register(r'chats', ChatViewSet)
@@ -40,4 +41,7 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/users/register/', UserViewSet.as_view({"post": "register"}), name='user_register'),
     path('api/users/me/', UserViewSet.as_view({"get": "me"}), name='user_me'),
+    path('api/users/anonymous/', UserViewSet.as_view({"post": "create_anonymous"}), name='user_anonymous'),
+    path('api/chats/anonymous/', ChatViewSet.as_view({"post": "find_anonymous_chat"}), name='chat_anonymous'),
+    path('api/csrf/', GetCsrfToken.as_view(), name='csrf_token'),
 ]

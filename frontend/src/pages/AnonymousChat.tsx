@@ -20,9 +20,13 @@ import {
   MenuItem,
   SelectChangeEvent,
   Grid,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
 import { Send as SendIcon, ExitToApp as ExitIcon } from '@mui/icons-material';
-import { chatService, interestService } from '../services/api';
+import { chatService, interestService, authService } from '../services/api';
 import { Message, Chat as ChatType, Interest } from '../types';
 
 const AnonymousChat: React.FC = () => {
@@ -40,6 +44,14 @@ const AnonymousChat: React.FC = () => {
   const [gender, setGender] = useState<string>('');
   const [minAge, setMinAge] = useState<string>('');
   const [maxAge, setMaxAge] = useState<string>('');
+
+  // Данные анонимного пользователя
+  const [showAnonymousForm, setShowAnonymousForm] = useState(false);
+  const [anonymousData, setAnonymousData] = useState({
+    username: '',
+    gender: '',
+    age: '',
+  });
 
   useEffect(() => {
     loadInterests();
@@ -63,30 +75,81 @@ const AnonymousChat: React.FC = () => {
     setGender(event.target.value);
   };
 
+  const handleTextChange = (field: string) => (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setAnonymousData({
+      ...anonymousData,
+      [field]: event.target.value,
+    });
+  };
+
+  const handleSelectChange = (field: string) => (
+    event: SelectChangeEvent<string>
+  ) => {
+    setAnonymousData({
+      ...anonymousData,
+      [field]: event.target.value,
+    });
+  };
+
   const handleFindChat = async () => {
     try {
-      const filters: any = {};
-
-      if (selectedInterests.length > 0) {
-        filters.interests = selectedInterests;
+      // Проверяем, авторизован ли пользователь
+      const token = localStorage.getItem('token');
+      if (!token) {
+        // Если не авторизован, показываем форму регистрации анонимного пользователя
+        setShowAnonymousForm(true);
+        return;
       }
 
-      if (gender) {
-        filters.gender = gender;
-      }
-
-      if (minAge) {
-        filters.min_age = parseInt(minAge);
-      }
-
-      if (maxAge) {
-        filters.max_age = parseInt(maxAge);
-      }
-
-      const data = await chatService.findAnonymousChat(filters);
-      navigate(`/chat/${data.id}`);
+      await findChat();
     } catch (error) {
       setError('Failed to find chat');
+    }
+  };
+
+  const findChat = async () => {
+    const filters: any = {};
+
+    if (selectedInterests.length > 0) {
+      filters.interests = selectedInterests;
+    }
+
+    if (gender) {
+      filters.gender = gender;
+    }
+
+    if (minAge) {
+      filters.min_age = parseInt(minAge);
+    }
+
+    if (maxAge) {
+      filters.max_age = parseInt(maxAge);
+    }
+
+    const data = await chatService.findAnonymousChat(filters);
+    navigate(`/chat/${data.id}`);
+  };
+
+  const handleAnonymousSubmit = async () => {
+    try {
+      // Регистрируем анонимного пользователя
+      const response = await authService.registerAnonymous({
+        username: anonymousData.username,
+        gender: anonymousData.gender,
+        age: parseInt(anonymousData.age),
+      });
+
+      // Сохраняем токен и данные пользователя
+      localStorage.setItem('token', response.token);
+      localStorage.setItem('user', JSON.stringify(response.user));
+
+      // Закрываем форму и ищем чат
+      setShowAnonymousForm(false);
+      await findChat();
+    } catch (error) {
+      setError('Failed to register anonymous user');
     }
   };
 
@@ -230,6 +293,51 @@ const AnonymousChat: React.FC = () => {
             {error}
           </Typography>
         )}
+
+        {/* Форма регистрации анонимного пользователя */}
+        <Dialog open={showAnonymousForm} onClose={() => setShowAnonymousForm(false)}>
+          <DialogTitle>Регистрация анонимного пользователя</DialogTitle>
+          <DialogContent>
+            <Box sx={{ pt: 2 }}>
+              <TextField
+                fullWidth
+                label="Никнейм"
+                value={anonymousData.username}
+                onChange={handleTextChange('username')}
+                margin="normal"
+                required
+              />
+              <FormControl fullWidth margin="normal">
+                <InputLabel>Пол</InputLabel>
+                <Select
+                  value={anonymousData.gender}
+                  onChange={handleSelectChange('gender')}
+                  label="Пол"
+                  required
+                >
+                  <MenuItem value="male">Мужской</MenuItem>
+                  <MenuItem value="female">Женский</MenuItem>
+                </Select>
+              </FormControl>
+              <TextField
+                fullWidth
+                label="Возраст"
+                type="number"
+                value={anonymousData.age}
+                onChange={handleTextChange('age')}
+                margin="normal"
+                required
+                InputProps={{ inputProps: { min: 18, max: 100 } }}
+              />
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setShowAnonymousForm(false)}>Отмена</Button>
+            <Button onClick={handleAnonymousSubmit} variant="contained" color="primary">
+              Продолжить
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     </Container>
   );
