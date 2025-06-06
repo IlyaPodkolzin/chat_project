@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import {
   Container,
   Typography,
@@ -115,6 +116,9 @@ const GroupChatSearch: React.FC = () => {
 
   return (
     <Container maxWidth="lg">
+      <Helmet>
+        <title>Групповые чаты | Чат-приложение</title>
+      </Helmet>
       <Box sx={{ mt: 4, mb: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
             Групповые чаты

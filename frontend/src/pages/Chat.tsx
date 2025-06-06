@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import {
   Container,
   Typography,
@@ -178,6 +179,9 @@ const Chat: React.FC = () => {
   if (!chat) {
     return (
       <Container>
+        <Helmet>
+          <title>Загрузка... | Чат-приложение</title>
+        </Helmet>
         <Typography>Loading...</Typography>
       </Container>
     );
@@ -185,6 +189,9 @@ const Chat: React.FC = () => {
 
   return (
     <Container maxWidth="md">
+      <Helmet>
+        <title>{chat.name} | Чат-приложение</title>
+      </Helmet>
       <Box sx={{ mt: 4, mb: 4 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
           <Typography variant="h4" component="h1">

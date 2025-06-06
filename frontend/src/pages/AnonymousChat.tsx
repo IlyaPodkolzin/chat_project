@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import {
   Container,
   Typography,
@@ -229,6 +230,9 @@ const AnonymousChat: React.FC = () => {
 
   return (
     <Container maxWidth="md">
+      <Helmet>
+        <title>Анонимный чат | Чат-приложение</title>
+      </Helmet>
       <Box sx={{ mt: 4, mb: 4 }}>
         <Typography variant="h4" component="h1" align="center" gutterBottom>
           Анонимный чат

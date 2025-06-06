@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import {
   Container,
   Typography,
@@ -39,6 +40,9 @@ const Login: React.FC = () => {
 
   return (
     <Container maxWidth="sm">
+      <Helmet>
+        <title>Вход | Чат-приложение</title>
+      </Helmet>
       <Box sx={{ mt: 8, mb: 4 }}>
         <Typography variant="h4" component="h1" align="center" gutterBottom>
           Login
