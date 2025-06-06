@@ -15,44 +15,62 @@
 
 - Серверная часть:
   - Django (основной веб-фреймворк)
-  - PostgreSQL (база данных)
-- Интерфейс:
+  - DRF
+- Клиентская часть:
   - TypeScript
   - React
   - Material-UI
+- База данных:
+  - PostgreSQL
 
 ## Инструкции по настройке
 
 1. Создайте и активируйте виртуальную среду:
-``bash
-python -m вев вев
-в env\Scripts\activate
+```
+python -m venv venv
+source venv\Scripts\activate
 ```
 
 2. Установите зависимости Python:
-``bash
+```
 pip install -r requirements.txt
 ```
 
 3. Установите зависимости внешнего интерфейса:
-``bash
+```
 cd frontend
 npm install
 ```
 
-4. Настройте базу данных PostgreSQL и обновите настройки в файле `.env`
+4. Настройте базу данных PostgreSQL и обновите настройки в файлах `.env`:
 
-5. Запустите миграцию:
-``bash
-python manage.py мигрировать
+backend/backend/.env
+```
+DB_NAME=chat_db
+DB_USER='your-user'
+DB_PASSWORD='your-password'
+DB_HOST=localhost
+DB_PORT='your-port'
+DEBUG=FALSE
+DJANGO_SECRET_KEY='your-key'
+```
+
+frontend/.env
+```
+REACT_APP_API_URL=http://localhost:8000
+```
+
+6. Запустите миграцию:
+```
+python manage.py migrate
 ```
 
 6. Запустите серверы разработки:
-``bash
-# # Терминал 1 - Джанго сервер
-python manage.py сервер запуска
+```
+python manage.py runserver
+```
 
-# # Терминал 2 - Сервер разработки
-интерфейса cd frontend
-npm run dev
+```
+cd frontend
+npm start
 ``
