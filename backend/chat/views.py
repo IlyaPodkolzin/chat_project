@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework import viewsets, permissions, status, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.db.models import Q, Count
+from django.db.models import Q, Count, F
 from .models import Chat, Message, Interest, ChatUser, ChatInterest, User, ChatType
 from .serializers import (
     ChatSerializer, MessageSerializer, InterestSerializer,
@@ -117,7 +117,9 @@ class ChatViewSet(viewsets.ModelViewSet):
         """Get all group chats with optional filters"""
         name = request.query_params.get('name', '')
         min_participants = request.query_params.get('min_participants', 0)
-        interests = request.query_params.getlist('interests', [])
+        
+        # Handle both formats: interests[] and interests
+        interests = request.query_params.getlist('interests[]', []) or request.query_params.getlist('interests', [])
 
         # Get all group chats where the user is not a participant
         queryset = Chat.objects.filter(type=ChatType.GROUP).exclude(participants=request.user)
@@ -161,13 +163,19 @@ class ChatViewSet(viewsets.ModelViewSet):
                 participant_count=1
             )
 
-            # Filter by existing participant's age and gender
+            # Get the existing participant's age and gender
+            chat_query = chat_query.annotate(
+                existing_user_age=F('participants__age'),
+                existing_user_gender=F('participants__gender')
+            )
+
+            # Filter by existing participant's age and gender based on current user's preferences
             if min_age:
-                chat_query = chat_query.filter(participants__age__gte=min_age)
+                chat_query = chat_query.filter(existing_user_age__gte=min_age)
             if max_age:
-                chat_query = chat_query.filter(participants__age__lte=max_age)
+                chat_query = chat_query.filter(existing_user_age__lte=max_age)
             if preferred_gender:
-                chat_query = chat_query.filter(participants__gender=preferred_gender)
+                chat_query = chat_query.filter(existing_user_gender=preferred_gender)
 
             # Filter by preferences stored in the chat
             if request.user.age:

@@ -5,7 +5,7 @@ import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 
 <>
-  <ListItem button component={Link} to="/create-chat">
+  <ListItem button component={Link} to="/create-group-chat">
     <ListItemIcon>
       <AddIcon />
     </ListItemIcon>

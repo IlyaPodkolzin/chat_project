@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import GroupChatSearch from './pages/GroupChatSearch';
+import CreateChat from './pages/CreateChat';
 import Chat from './pages/Chat';
 import AnonymousChat from './pages/AnonymousChat';
 import Navbar from './components/Navbar';
@@ -18,7 +19,7 @@ const App: React.FC = () => {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <AuthProvider>
-          <Router>
+          <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <Navbar />
             <Routes>
               <Route path="/login" element={<Login />} />
@@ -49,6 +50,7 @@ const ProtectedRoutes: React.FC = () => {
     <Routes>
       <Route path="/profile" element={<Profile />} />
       <Route path="/group-chats" element={<GroupChatSearch />} />
+      <Route path="/create-group-chat" element={<CreateChat />} />
       <Route path="/chat/:id" element={<Chat />} />
       <Route path="/" element={<Navigate to="/profile" replace />} />
     </Routes>

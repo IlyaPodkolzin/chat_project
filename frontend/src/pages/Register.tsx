@@ -50,7 +50,7 @@ const Register: React.FC = () => {
       });
       navigate('/login');
     } catch (error) {
-      setError('Registration failed. Please try again.');
+      setError('Ошибка регистрации. Пожалуйста, попробуйте снова.');
     }
   };
 
@@ -61,14 +61,14 @@ const Register: React.FC = () => {
       </Helmet>
       <Box sx={{ mt: 8, mb: 4 }}>
         <Typography variant="h4" component="h1" align="center" gutterBottom>
-          Register
+          Регистрация
         </Typography>
 
         <Paper sx={{ p: 4, mt: 4 }}>
           <form onSubmit={handleSubmit}>
             <TextField
               fullWidth
-              label="Username"
+              label="Имя пользователя"
               name="username"
               value={formData.username}
               onChange={handleChange}
@@ -77,7 +77,7 @@ const Register: React.FC = () => {
             />
             <TextField
               fullWidth
-              label="Password"
+              label="Пароль"
               name="password"
               type="password"
               value={formData.password}
@@ -97,7 +97,7 @@ const Register: React.FC = () => {
             />
             <TextField
               fullWidth
-              label="Age"
+              label="Возраст"
               name="age"
               type="number"
               value={formData.age}
@@ -106,16 +106,16 @@ const Register: React.FC = () => {
               required
             />
             <FormControl fullWidth margin="normal">
-              <InputLabel>Gender</InputLabel>
+              <InputLabel>Пол</InputLabel>
               <Select
                 value={formData.gender}
-                label="Gender"
+                label="Пол"
                 onChange={handleGenderChange}
                 required
               >
-                <MenuItem value="male">Male</MenuItem>
-                <MenuItem value="female">Female</MenuItem>
-                <MenuItem value="other">Other</MenuItem>
+                <MenuItem value="male">Мужской</MenuItem>
+                <MenuItem value="female">Женский</MenuItem>
+                <MenuItem value="other">Другой</MenuItem>
               </Select>
             </FormControl>
             {error && (
@@ -131,15 +131,15 @@ const Register: React.FC = () => {
               size="large"
               sx={{ mt: 3 }}
             >
-              Register
+              Зарегистрироваться
             </Button>
           </form>
 
           <Box sx={{ mt: 2, textAlign: 'center' }}>
             <Typography variant="body2">
-              Already have an account?{' '}
+              Уже есть аккаунт?{' '}
               <Link component={RouterLink} to="/login">
-                Login here
+                Войти
               </Link>
             </Typography>
           </Box>

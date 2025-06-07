@@ -180,9 +180,9 @@ const Chat: React.FC = () => {
     return (
       <Container>
         <Helmet>
-          <title>Загрузка... | Чат-приложение</title>
+          <title>Загрузка чата | Чат-приложение</title>
         </Helmet>
-        <Typography>Loading...</Typography>
+        <Typography>Загрузка...</Typography>
       </Container>
     );
   }
@@ -190,7 +190,7 @@ const Chat: React.FC = () => {
   return (
     <Container maxWidth="md">
       <Helmet>
-        <title>{chat.name} | Чат-приложение</title>
+        <title>{chat.name || 'Чат'} | Чат-приложение</title>
       </Helmet>
       <Box sx={{ mt: 4, mb: 4 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -289,7 +289,7 @@ const Chat: React.FC = () => {
                 fullWidth
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="Type a message..."
+                placeholder="Введите сообщение..."
                 variant="outlined"
                 size="small"
               />
@@ -299,7 +299,7 @@ const Chat: React.FC = () => {
                 color="primary"
                 endIcon={<SendIcon />}
               >
-                Send
+                Отправить
               </Button>
             </Box>
           </Paper>

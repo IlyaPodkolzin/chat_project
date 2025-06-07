@@ -45,14 +45,14 @@ const Login: React.FC = () => {
       </Helmet>
       <Box sx={{ mt: 8, mb: 4 }}>
         <Typography variant="h4" component="h1" align="center" gutterBottom>
-          Login
+          Вход
         </Typography>
 
         <Paper sx={{ p: 4, mt: 4 }}>
           <form onSubmit={handleSubmit}>
             <TextField
               fullWidth
-              label="Username"
+              label="Имя пользователя"
               name="username"
               value={formData.username}
               onChange={handleChange}
@@ -61,7 +61,7 @@ const Login: React.FC = () => {
             />
             <TextField
               fullWidth
-              label="Password"
+              label="Пароль"
               name="password"
               type="password"
               value={formData.password}
@@ -71,7 +71,7 @@ const Login: React.FC = () => {
             />
             {error && (
               <Typography color="error" sx={{ mt: 2 }}>
-                {error}
+                Неверное имя пользователя или пароль
               </Typography>
             )}
             <Button
@@ -82,15 +82,15 @@ const Login: React.FC = () => {
               size="large"
               sx={{ mt: 3 }}
             >
-              Login
+              Войти
             </Button>
           </form>
 
           <Box sx={{ mt: 2, textAlign: 'center' }}>
             <Typography variant="body2">
-              Don't have an account?{' '}
+              Нет аккаунта?{' '}
               <Link component={RouterLink} to="/register">
-                Register here
+                Зарегистрироваться
               </Link>
             </Typography>
           </Box>

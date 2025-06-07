@@ -43,6 +43,15 @@ const Navbar: React.FC = () => {
               </Button>
               <Button
                 color="inherit"
+                onClick={() => navigate('/create-group-chat')}
+                sx={{
+                  backgroundColor: isActive('/create-group-chat') ? 'rgba(255, 255, 255, 0.1)' : 'transparent'
+                }}
+              >
+                Создать групповой чат
+              </Button>
+              <Button
+                color="inherit"
                 onClick={() => navigate('/anonymous-chat')}
                 sx={{
                   backgroundColor: isActive('/anonymous-chat') ? 'rgba(255, 255, 255, 0.1)' : 'transparent'
@@ -59,7 +68,7 @@ const Navbar: React.FC = () => {
                 backgroundColor: isActive('/') ? 'rgba(255, 255, 255, 0.1)' : 'transparent'
               }}
             >
-              Главная
+              Анонимный чат
             </Button>
           )}
         </Box>

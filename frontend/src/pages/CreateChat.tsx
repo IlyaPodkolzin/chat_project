@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import {
   Container,
   Typography,
@@ -13,12 +14,15 @@ import {
   MenuItem,
   Chip,
   SelectChangeEvent,
+  CircularProgress,
 } from '@mui/material';
 import { chatService, interestService } from '../services/api';
 import { Interest } from '../types/index';
+import { useAuth } from '../contexts/AuthContext';
 
 const CreateChat: React.FC = () => {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
   const [interests, setInterests] = useState<Interest[]>([]);
   const [formData, setFormData] = useState({
     name: '',
@@ -27,8 +31,14 @@ const CreateChat: React.FC = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    loadInterests();
-  }, []);
+    if (!loading && !user) {
+      navigate('/login');
+      return;
+    }
+    if (user) {
+      loadInterests();
+    }
+  }, [user, loading, navigate]);
 
   const loadInterests = async () => {
     try {
@@ -71,18 +81,33 @@ const CreateChat: React.FC = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
   return (
     <Container maxWidth="sm">
+      <Helmet>
+        <title>Создание группы | Чат-приложение</title>
+      </Helmet>
       <Box sx={{ mt: 8, mb: 4 }}>
         <Typography variant="h4" component="h1" align="center" gutterBottom>
-          Create New Chat
+          Создать новый чат
         </Typography>
 
         <Paper sx={{ p: 4, mt: 4 }}>
           <form onSubmit={handleSubmit}>
             <TextField
               fullWidth
-              label="Chat Name"
+              label="Название чата"
               name="name"
               value={formData.name}
               onChange={handleChange}
@@ -91,7 +116,7 @@ const CreateChat: React.FC = () => {
             />
 
             <FormControl fullWidth margin="normal">
-              <InputLabel>Interests</InputLabel>
+              <InputLabel>Интересы</InputLabel>
               <Select
                 multiple
                 value={formData.interests}
@@ -126,7 +151,7 @@ const CreateChat: React.FC = () => {
               size="large"
               sx={{ mt: 3 }}
             >
-              Create Chat
+              Создать чат
             </Button>
           </form>
         </Paper>
